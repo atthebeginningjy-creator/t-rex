@@ -233,11 +233,11 @@
     </div>
   </div>
 
-  <!-- ==================== パスワードモーダル（仮パスワード: 12345） ==================== -->
+  <!-- ==================== パスワードモーダル ==================== -->
   <div id="loginModal" class="no-print fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xs rounded-2xl p-5 space-y-3 shadow-2xl">
       <h3 class="text-sm font-black">🔒 管理者ログイン</h3>
-      <p class="text-xs text-stone-600">パスワード（12345）を入力してください。</p>
+      <p class="text-xs text-stone-600">スタッフ用パスワードを入力してください。</p>
       <input type="password" id="adminPassInput" placeholder="パスワード" onkeydown="if(event.key==='Enter') checkAdminLogin()" class="w-full border rounded-xl px-3 py-2 text-sm font-bold">
       <p id="loginErr" class="hidden text-xs text-rose-600 font-bold">パスワードが違います。</p>
       <div class="flex gap-2 pt-1">
@@ -268,8 +268,8 @@
     ];
 
     let bookings = [];
-    let slotCaps = {}; // { R1: 15, R2: 15, ... }
-    let sortMode = 'youngest'; // 'youngest' (年齢が若い順) | 'oldest' | 'created'
+    let slotCaps = {};
+    let sortMode = 'youngest';
     let myId = null;
     let currentSlotId = null;
     let adminSlotId = 'R1';
@@ -304,7 +304,6 @@
       return parseInt(slotCaps[slotId], 10) || DEFAULT_CAP;
     }
 
-    // 指定枠の参加者リストを取得し、生年月日順（若い順＝1番ゲートから）でソートして返す
     function getSortedRunners(slotId) {
       const arr = [];
       bookings.filter(b => b.slotId === slotId).forEach(b => {
@@ -325,10 +324,8 @@
 
       arr.sort((a, b) => {
         if (sortMode === 'youngest') {
-          // 年齢が若い順（生年月日が新しい順：例 2020年生まれ → 1990年生まれ）
           if (a.dob !== b.dob) return b.dob.localeCompare(a.dob);
         } else if (sortMode === 'oldest') {
-          // 生年月日が早い順（年長者順：例 1980年生まれ → 2018年生まれ）
           if (a.dob !== b.dob) return a.dob.localeCompare(b.dob);
         }
         return a.createdAt - b.createdAt;
@@ -594,7 +591,6 @@
       const sortSel = document.getElementById('sortOrderSelect');
       if (sortSel) sortSel.value = sortMode;
 
-      // レース選択タブ
       const tabs = document.getElementById('adminTabs');
       tabs.innerHTML = SLOTS.map(s => {
         const c = getSortedRunners(s.id).length;
@@ -612,7 +608,6 @@
       const runners = getSortedRunners(adminSlotId);
       const rowTotal = Math.max(cap, runners.length);
 
-      // スタッフ専用控えリスト（非印刷）
       const privEl = document.getElementById('adminPrivateList');
       if (runners.length === 0) {
         privEl.innerHTML = '<div class="text-stone-400">現在この枠の登録者はいません。</div>';
@@ -626,7 +621,6 @@
         ).join('');
       }
 
-      // 🖨️ 印刷される出走表（個人情報なし：ゲート番・受付・ティラノネーム・生年月日・メモ欄のみ）
       let rows = '';
       for (let i = 0; i < rowTotal; i++) {
         const gateNo = i + 1;
