@@ -9,10 +9,10 @@
     body { font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; }
     @media print {
       @page { size: A4 portrait; margin: 10mm; }
-      body { background: #fff !important; color: #000 !important; }
+      body { background: #fff !important; color: #000 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       .no-print, #userView, footer { display: none !important; }
       #adminView { display: block !important; max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-      .print-box { border: none !important; box-shadow: none !important; padding: 0 !important; }
+      .print-box { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
     }
   </style>
 </head>
@@ -28,7 +28,7 @@
         <span class="text-xs font-bold bg-emerald-950/50 px-2.5 py-0.5 rounded-full">主催：ティラノフェス実行委員会</span>
       </div>
       <h1 class="text-xl sm:text-2xl font-black mb-1">10/31ティラノサウルスレース体験会in船橋競馬場</h1>
-      <p class="text-xs text-emerald-100">開催時間：11:00-11:30 〜 最終受付会 15:00-15:30（各30分刻み・定員15名）</p>
+      <p class="text-xs text-emerald-100">開催時間：11:00-11:30 〜 最終受付会 15:00-15:30（各30分刻み）</p>
     </header>
 
     <!-- タイムスケジュール・案内 -->
@@ -63,7 +63,7 @@
             <p class="font-bold text-rose-700">🎁 体験会終了後にティラノフェスが500円引きになる終了証明書を発行しますので終了後5-10分ほどお待ちください。</p>
           </div>
           <div id="myBookedRunners" class="space-y-1.5"></div>
-          <div id="myBookedContact" class="bg-stone-50 p-2.5 rounded-lg border text-stone-600"></div>
+          <div class="text-[11px] text-stone-500">※ ゲート番号は全参加者の生年月日順（若い順）で1番ゲートから割り当てられます。</div>
           <div class="flex gap-2 pt-1">
             <button onclick="cancelMyBooking()" class="bg-rose-100 text-rose-700 font-bold px-4 py-2 rounded-xl">予約を取り消す</button>
           </div>
@@ -94,7 +94,7 @@
   <!-- ==================== 2. 管理者用 レース表（印刷）画面 ==================== -->
   <div id="adminView" class="hidden max-w-5xl w-full mx-auto px-4 pt-5 pb-12">
 
-    <!-- 管理者パネル（印刷時は自動で消えます） -->
+    <!-- 管理者パネル（印刷時は自動で非表示） -->
     <div class="no-print bg-white rounded-2xl p-5 shadow-sm border border-stone-200 mb-5 space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <div class="flex items-center gap-2">
@@ -104,26 +104,65 @@
           </button>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button onclick="seedSample()" class="bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded-xl">
-            🧪 テスト用サンプル投入
+          <button onclick="openStaffAddModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black px-3.5 py-2 rounded-xl">
+            ➕ 当日スタッフ追加
+          </button>
+          <button onclick="seedSample()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-xl">
+            🧪 サンプル投入
           </button>
           <button onclick="clearAllData()" class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2 rounded-xl">
-            🗑️ 全データ消去
+            🗑️ 全消去
           </button>
-          <button onclick="window.print()" class="bg-stone-900 text-amber-300 text-xs font-black px-5 py-2 rounded-xl shadow">
-            🖨️ このレース表をA4印刷する
+          <button onclick="window.print()" class="bg-stone-900 hover:bg-stone-800 text-amber-300 text-xs font-black px-5 py-2 rounded-xl shadow">
+            🖨️ この出走表をA4印刷する
           </button>
         </div>
       </div>
 
-      <!-- レース切り替えボタン -->
+      <!-- ⚙️ 定員変更 ＆ ゲート並び順設定 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs">
+        <div class="space-y-2">
+          <div class="font-black text-stone-700">👥 定員（残数上限）の変更（基本15名）</div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span>選択中レースの定員：</span>
+            <input type="number" id="slotCapInput" min="1" max="50" value="15" class="w-16 border border-stone-300 rounded-lg px-2 py-1 font-black text-center">
+            <button onclick="updateCurrentSlotCap()" class="bg-stone-800 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-stone-700">
+              この枠に適用
+            </button>
+            <button onclick="updateAllSlotsCap()" class="bg-amber-500 text-stone-950 font-black px-3 py-1.5 rounded-lg hover:bg-amber-400">
+              全レース一括で適用
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-black text-stone-700">🔢 1番ゲートからの並び順設定</div>
+          <div class="flex items-center gap-2">
+            <select id="sortOrderSelect" onchange="changeSortOrder()" class="border border-stone-300 rounded-lg px-2.5 py-1.5 font-bold bg-white w-full sm:w-auto">
+              <option value="youngest">生年月日の若い順（年齢が若い・年少者から1番ゲート）</option>
+              <option value="oldest">生年月日の早い順（年長者から1番ゲート）</option>
+              <option value="created">受付申込順</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- レース切り替えタブ -->
       <div>
-        <div class="text-xs font-bold text-stone-500 mb-1.5">印刷・確認するレース枠を選択：</div>
+        <div class="text-xs font-bold text-stone-500 mb-1.5">確認・印刷するレース枠を選択：</div>
         <div id="adminTabs" class="grid grid-cols-3 sm:grid-cols-9 gap-1.5"></div>
       </div>
+
+      <!-- スタッフ用 個人情報控え（印刷時は非表示） -->
+      <details class="bg-stone-100 rounded-xl p-3 border border-stone-200 text-xs">
+        <summary class="font-bold text-stone-700 cursor-pointer">
+          🔒 スタッフ確認用：この枠の氏名・連絡先控えを見る（※出走表には印刷されません）
+        </summary>
+        <div id="adminPrivateList" class="mt-2.5 space-y-1.5 pt-2 border-t border-stone-200"></div>
+      </details>
     </div>
 
-    <!-- 印刷されるレース表本体 -->
+    <!-- 🖨️ 印刷される出走表本体（個人情報なし：ティラノネームと生年月日のみ） -->
     <div id="raceSheetArea" class="print-box bg-white rounded-2xl p-6 shadow-sm border border-stone-300"></div>
   </div>
 
@@ -135,7 +174,7 @@
     </div>
   </footer>
 
-  <!-- ==================== 申込モーダル ==================== -->
+  <!-- ==================== 参加者用 申込モーダル ==================== -->
   <div id="bookingModal" class="no-print fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       <div class="bg-emerald-800 text-white px-5 py-3.5 flex justify-between items-center">
@@ -149,7 +188,7 @@
         </div>
         <div id="runnerFormsArea" class="space-y-3"></div>
         <div class="bg-stone-50 p-3.5 rounded-xl border space-y-2.5">
-          <div class="font-black text-stone-700">📞 代表者連絡先</div>
+          <div class="font-black text-stone-700">📞 代表者連絡先（※出走表には公開・印刷されません）</div>
           <input type="tel" id="repPhone" placeholder="電話番号（例: 090-1234-5678）" class="w-full border rounded-lg p-2">
           <input type="text" id="repAddr" placeholder="住所（例: 千葉県船橋市若松1-2-1）" class="w-full border rounded-lg p-2">
         </div>
@@ -162,12 +201,44 @@
     </div>
   </div>
 
+  <!-- ==================== スタッフ代理追加モーダル ==================== -->
+  <div id="staffAddModal" class="no-print fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
+      <div class="bg-stone-900 text-white px-5 py-3.5 flex justify-between items-center">
+        <h3 class="font-black text-sm">➕ スタッフによる参加者追加</h3>
+        <button onclick="closeStaffAddModal()" class="text-xl font-bold">&times;</button>
+      </div>
+      <div class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="font-bold block mb-1">ティラノネーム（出走表に記載）*</label>
+          <input type="text" id="sTyr" placeholder="例: フナバシレックス" class="w-full border rounded-lg p-2 font-bold">
+        </div>
+        <div>
+          <label class="font-bold block mb-1">生年月日（出走表に記載・ゲート順に使用）*</label>
+          <input type="date" id="sDob" value="2015-05-05" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="font-bold block mb-1">氏名（控え用・印刷されません）</label>
+          <input type="text" id="sName" placeholder="例: 船橋 太郎" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="font-bold block mb-1">電話番号（控え用・印刷されません）</label>
+          <input type="tel" id="sPhone" placeholder="例: 090-0000-0000" class="w-full border rounded-lg p-2">
+        </div>
+      </div>
+      <div class="p-4 bg-stone-100 border-t flex gap-2">
+        <button onclick="closeStaffAddModal()" class="w-1/3 bg-stone-300 font-bold py-2 rounded-xl text-xs">キャンセル</button>
+        <button onclick="submitStaffAdd()" class="w-2/3 bg-emerald-600 text-white font-black py-2 rounded-xl text-xs">追加する</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== パスワードモーダル（仮パスワード: 12345） ==================== -->
   <div id="loginModal" class="no-print fixed inset-0 z-50 hidden bg-black/60 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xs rounded-2xl p-5 space-y-3 shadow-2xl">
       <h3 class="text-sm font-black">🔒 管理者ログイン</h3>
       <p class="text-xs text-stone-600">パスワード（12345）を入力してください。</p>
-      <input type="password" id="adminPassInput" placeholder="パスワード" class="w-full border rounded-xl px-3 py-2 text-sm font-bold">
+      <input type="password" id="adminPassInput" placeholder="パスワード" onkeydown="if(event.key==='Enter') checkAdminLogin()" class="w-full border rounded-xl px-3 py-2 text-sm font-bold">
       <p id="loginErr" class="hidden text-xs text-rose-600 font-bold">パスワードが違います。</p>
       <div class="flex gap-2 pt-1">
         <button onclick="closeLoginModal()" class="w-1/2 bg-stone-200 text-xs font-bold py-2 rounded-xl">キャンセル</button>
@@ -177,10 +248,12 @@
   </div>
 
   <script>
-    const MAX_CAP = 15;
+    const DEFAULT_CAP = 15;
     const PASS = '12345';
-    const KEY_DATA = 'tyranno_1031_data_v1';
-    const KEY_MY = 'tyranno_1031_my_v1';
+    const KEY_DATA = 'tyranno_1031_data_v2';
+    const KEY_MY = 'tyranno_1031_my_v2';
+    const KEY_CAPS = 'tyranno_1031_caps_v2';
+    const KEY_SORT = 'tyranno_1031_sort_v2';
 
     const SLOTS = [
       { id: 'R1', label: '第1R', time: '11:00-11:30' },
@@ -195,6 +268,8 @@
     ];
 
     let bookings = [];
+    let slotCaps = {}; // { R1: 15, R2: 15, ... }
+    let sortMode = 'youngest'; // 'youngest' (年齢が若い順) | 'oldest' | 'created'
     let myId = null;
     let currentSlotId = null;
     let adminSlotId = 'R1';
@@ -203,20 +278,34 @@
       try {
         bookings = JSON.parse(localStorage.getItem(KEY_DATA) || '[]');
         myId = localStorage.getItem(KEY_MY) || null;
+        slotCaps = JSON.parse(localStorage.getItem(KEY_CAPS) || '{}');
+        sortMode = localStorage.getItem(KEY_SORT) || 'youngest';
       } catch (e) {
         bookings = [];
         myId = null;
+        slotCaps = {};
+        sortMode = 'youngest';
       }
+      SLOTS.forEach(s => {
+        if (!slotCaps[s.id] || slotCaps[s.id] < 1) slotCaps[s.id] = DEFAULT_CAP;
+      });
     }
 
     function saveData() {
       localStorage.setItem(KEY_DATA, JSON.stringify(bookings));
+      localStorage.setItem(KEY_CAPS, JSON.stringify(slotCaps));
+      localStorage.setItem(KEY_SORT, sortMode);
       if (myId) localStorage.setItem(KEY_MY, myId);
       else localStorage.removeItem(KEY_MY);
       renderAll();
     }
 
-    function getRunners(slotId) {
+    function getCap(slotId) {
+      return parseInt(slotCaps[slotId], 10) || DEFAULT_CAP;
+    }
+
+    // 指定枠の参加者リストを取得し、生年月日順（若い順＝1番ゲートから）でソートして返す
+    function getSortedRunners(slotId) {
       const arr = [];
       bookings.filter(b => b.slotId === slotId).forEach(b => {
         b.runners.forEach((r, idx) => {
@@ -225,13 +314,26 @@
             idx: idx,
             name: r.name,
             tyranno: r.tyranno,
-            dob: r.dob,
+            dob: r.dob || '2000-01-01',
             checked: !!r.checked,
             phone: b.phone,
-            addr: b.addr
+            addr: b.addr,
+            createdAt: b.createdAt || 0
           });
         });
       });
+
+      arr.sort((a, b) => {
+        if (sortMode === 'youngest') {
+          // 年齢が若い順（生年月日が新しい順：例 2020年生まれ → 1990年生まれ）
+          if (a.dob !== b.dob) return b.dob.localeCompare(a.dob);
+        } else if (sortMode === 'oldest') {
+          // 生年月日が早い順（年長者順：例 1980年生まれ → 2018年生まれ）
+          if (a.dob !== b.dob) return a.dob.localeCompare(b.dob);
+        }
+        return a.createdAt - b.createdAt;
+      });
+
       return arr;
     }
 
@@ -243,7 +345,7 @@
       const m = parseInt(p[1], 10);
       const d = parseInt(p[2], 10);
       if (m > 10 || (m === 10 && d > 31)) age--;
-      return p[0] + '/' + p[1] + '/' + p[2] + ' (' + age + '歳)';
+      return p[0] + '年' + p[1] + '月' + p[2] + '日 (' + age + '歳)';
     }
 
     function renderAll() {
@@ -261,20 +363,26 @@
       }
       box.classList.remove('hidden');
       const slot = SLOTS.find(s => s.id === myB.slotId);
+      const sorted = getSortedRunners(myB.slotId);
+
       document.getElementById('myBookedTime').textContent = slot ? (slot.label + ' ' + slot.time) : '';
-      document.getElementById('myBookedRunners').innerHTML = myB.runners.map(r =>
-        '<div class="bg-stone-100 p-2 rounded-lg border font-bold">🦖 ' + esc(r.tyranno) +
-        ' <span class="font-normal text-stone-600">（氏名: ' + esc(r.name) + ' / 生年月日: ' + formatDob(r.dob) + '）</span></div>'
-      ).join('');
-      document.getElementById('myBookedContact').textContent = '代表者連絡先：' + myB.phone + ' ／ ' + myB.addr;
+      document.getElementById('myBookedRunners').innerHTML = myB.runners.map((r, i) => {
+        const gateNo = sorted.findIndex(sr => sr.bookingId === myB.id && sr.idx === i) + 1;
+        return '<div class="bg-stone-100 p-2.5 rounded-lg border flex items-center justify-between">' +
+          '<div><span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded mr-2">' + gateNo + '番ゲート</span>' +
+          '<span class="font-black text-sm">🦖 ' + esc(r.tyranno) + '</span></div>' +
+          '<span class="text-stone-600 text-xs">生年月日: ' + formatDob(r.dob) + '</span>' +
+        '</div>';
+      }).join('');
     }
 
     function renderSlots() {
       const list = document.getElementById('slotsList');
       const myB = bookings.find(b => b.id === myId);
       list.innerHTML = SLOTS.map(s => {
-        const count = getRunners(s.id).length;
-        const rem = Math.max(0, MAX_CAP - count);
+        const cap = getCap(s.id);
+        const count = getSortedRunners(s.id).length;
+        const rem = Math.max(0, cap - count);
         const isMine = myB && myB.slotId === s.id;
         const isFull = rem === 0;
         let btn = '';
@@ -289,14 +397,14 @@
         }
         return '<div class="bg-white p-4 rounded-2xl shadow-sm border flex items-center justify-between gap-2">' +
           '<div>' +
-            '<div class="flex items-center gap-2">' +
+            '<div class="flex items-center flex-wrap gap-2">' +
               '<span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded">' + s.label + '</span>' +
               '<span class="text-base font-black">' + s.time + '</span>' +
-              '<span class="text-xs font-bold text-emerald-700">残り' + rem + '名 (' + count + '/' + MAX_CAP + ')</span>' +
+              '<span class="text-xs font-bold ' + (isFull ? 'text-rose-600' : 'text-emerald-700') + '">残り' + rem + '名 (' + count + '/' + cap + '名)</span>' +
             '</div>' +
             '<div class="text-[11px] text-stone-500 mt-1">受付10分 / 着替え10分 / ラジオ体操5分 / レース5分</div>' +
           '</div>' +
-          '<div>' + btn + '</div>' +
+          '<div class="shrink-0">' + btn + '</div>' +
         '</div>';
       }).join('');
     }
@@ -304,7 +412,8 @@
     function openBookingModal(slotId) {
       currentSlotId = slotId;
       const slot = SLOTS.find(s => s.id === slotId);
-      const rem = Math.max(1, MAX_CAP - getRunners(slotId).length);
+      const cap = getCap(slotId);
+      const rem = Math.max(1, cap - getSortedRunners(slotId).length);
       const maxP = Math.min(5, rem);
       document.getElementById('modalHeaderTitle').textContent = slot.label + ' (' + slot.time + ') 参加申込';
       const sel = document.getElementById('partyCount');
@@ -326,10 +435,10 @@
       for (let i = 0; i < n; i++) {
         html += '<div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200 space-y-2">' +
           '<div class="font-black text-emerald-900">🦖 出走者 ' + (i + 1) + '人目</div>' +
-          '<input type="text" id="fTyr_' + i + '" placeholder="ティラノネーム（レース表に掲載）*" class="w-full border rounded-lg p-2 font-bold">' +
-          '<input type="text" id="fName_' + i + '" placeholder="氏名 *" class="w-full border rounded-lg p-2">' +
-          '<div><label class="block text-[11px] font-bold text-stone-600 mb-0.5">生年月日（補足事項）*</label>' +
-          '<input type="date" id="fDob_' + i + '" value="1995-05-05" class="w-full border rounded-lg p-2"></div>' +
+          '<input type="text" id="fTyr_' + i + '" placeholder="ティラノネーム（出走表に掲載）*" class="w-full border rounded-lg p-2 font-bold">' +
+          '<input type="text" id="fName_' + i + '" placeholder="氏名（控え用・出走表には印刷されません）*" class="w-full border rounded-lg p-2">' +
+          '<div><label class="block text-[11px] font-bold text-stone-600 mb-0.5">生年月日（出走表に掲載・若い順で1番ゲートから配置）*</label>' +
+          '<input type="date" id="fDob_' + i + '" value="2015-05-05" class="w-full border rounded-lg p-2"></div>' +
         '</div>';
       }
       document.getElementById('runnerFormsArea').innerHTML = html;
@@ -360,7 +469,14 @@
       }
 
       const newId = 'B_' + Date.now();
-      bookings.push({ id: newId, slotId: currentSlotId, phone: phone, addr: addr, runners: runners });
+      bookings.push({
+        id: newId,
+        slotId: currentSlotId,
+        phone: phone,
+        addr: addr,
+        createdAt: Date.now(),
+        runners: runners
+      });
       myId = newId;
       adminSlotId = currentSlotId;
       saveData();
@@ -374,10 +490,12 @@
       saveData();
     }
 
+    // ==================== 管理者機能 ====================
     function openLoginModal() {
       document.getElementById('adminPassInput').value = '';
       document.getElementById('loginErr').classList.add('hidden');
       document.getElementById('loginModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('adminPassInput').focus(), 50);
     }
 
     function closeLoginModal() {
@@ -405,39 +523,128 @@
       window.scrollTo({ top: 0 });
     }
 
+    function selectAdminSlot(slotId) {
+      adminSlotId = slotId;
+      renderAdmin();
+    }
+
+    function updateCurrentSlotCap() {
+      const val = parseInt(document.getElementById('slotCapInput').value, 10);
+      if (!val || val < 1) return;
+      slotCaps[adminSlotId] = val;
+      saveData();
+    }
+
+    function updateAllSlotsCap() {
+      const val = parseInt(document.getElementById('slotCapInput').value, 10);
+      if (!val || val < 1) return;
+      SLOTS.forEach(s => { slotCaps[s.id] = val; });
+      saveData();
+    }
+
+    function changeSortOrder() {
+      sortMode = document.getElementById('sortOrderSelect').value;
+      saveData();
+    }
+
+    function openStaffAddModal() {
+      document.getElementById('sTyr').value = '';
+      document.getElementById('sName').value = '';
+      document.getElementById('sPhone').value = '';
+      document.getElementById('staffAddModal').classList.remove('hidden');
+    }
+
+    function closeStaffAddModal() {
+      document.getElementById('staffAddModal').classList.add('hidden');
+    }
+
+    function submitStaffAdd() {
+      const tyr = document.getElementById('sTyr').value.trim();
+      const dob = document.getElementById('sDob').value;
+      const name = document.getElementById('sName').value.trim() || '当日受付';
+      const phone = document.getElementById('sPhone').value.trim() || '-';
+      if (!tyr || !dob) return;
+
+      bookings.push({
+        id: 'STAFF_' + Date.now(),
+        slotId: adminSlotId,
+        phone: phone,
+        addr: '当日受付',
+        createdAt: Date.now(),
+        runners: [{ tyranno: tyr, name: name, dob: dob, checked: true }]
+      });
+      saveData();
+      closeStaffAddModal();
+    }
+
+    function removeRunner(bId, idx) {
+      const target = bookings.find(b => b.id === bId);
+      if (!target) return;
+      target.runners.splice(idx, 1);
+      if (target.runners.length === 0) {
+        bookings = bookings.filter(b => b.id !== bId);
+        if (myId === bId) myId = null;
+      }
+      saveData();
+    }
+
     function renderAdmin() {
+      const capInput = document.getElementById('slotCapInput');
+      if (capInput) capInput.value = getCap(adminSlotId);
+      const sortSel = document.getElementById('sortOrderSelect');
+      if (sortSel) sortSel.value = sortMode;
+
+      // レース選択タブ
       const tabs = document.getElementById('adminTabs');
       tabs.innerHTML = SLOTS.map(s => {
-        const c = getRunners(s.id).length;
+        const c = getSortedRunners(s.id).length;
+        const cap = getCap(s.id);
         const active = s.id === adminSlotId;
-        return '<button onclick="adminSlotId=\'' + s.id + '\';renderAdmin();" class="p-2 rounded-xl border text-left text-xs font-bold ' +
+        return '<button onclick="selectAdminSlot(\'' + s.id + '\')" class="p-2 rounded-xl border text-left text-xs font-bold ' +
           (active ? 'bg-stone-900 text-amber-300 border-stone-900' : 'bg-stone-50 text-stone-700') + '">' +
-          '<div>' + s.label + ' (' + c + '/15)</div>' +
+          '<div>' + s.label + ' (' + c + '/' + cap + ')</div>' +
           '<div class="text-[10px] font-normal">' + s.time + '</div>' +
         '</button>';
       }).join('');
 
       const slot = SLOTS.find(s => s.id === adminSlotId);
-      const runners = getRunners(adminSlotId);
+      const cap = getCap(adminSlotId);
+      const runners = getSortedRunners(adminSlotId);
+      const rowTotal = Math.max(cap, runners.length);
+
+      // スタッフ専用控えリスト（非印刷）
+      const privEl = document.getElementById('adminPrivateList');
+      if (runners.length === 0) {
+        privEl.innerHTML = '<div class="text-stone-400">現在この枠の登録者はいません。</div>';
+      } else {
+        privEl.innerHTML = runners.map((r, i) =>
+          '<div class="flex flex-wrap items-center justify-between bg-white px-3 py-1.5 rounded border border-stone-200 gap-2">' +
+            '<div><span class="font-black mr-2">' + (i + 1) + '番ゲート：' + esc(r.tyranno) + '</span>' +
+            '<span class="text-stone-600">（氏名: ' + esc(r.name) + ' / 生年月日: ' + formatDob(r.dob) + ' / TEL: ' + esc(r.phone) + ' / 住所: ' + esc(r.addr) + '）</span></div>' +
+            '<button onclick="removeRunner(\'' + r.bookingId + '\',' + r.idx + ')" class="text-rose-600 font-bold hover:underline">削除</button>' +
+          '</div>'
+        ).join('');
+      }
+
+      // 🖨️ 印刷される出走表（個人情報なし：ゲート番・受付・ティラノネーム・生年月日・メモ欄のみ）
       let rows = '';
-      for (let i = 0; i < MAX_CAP; i++) {
+      for (let i = 0; i < rowTotal; i++) {
+        const gateNo = i + 1;
         const r = runners[i];
         if (r) {
-          rows += '<tr class="border-b border-stone-400 text-xs">' +
-            '<td class="p-2 text-center font-black border border-stone-400">' + (i + 1) + '</td>' +
-            '<td class="p-2 text-center border border-stone-400"><input type="checkbox" ' + (r.checked ? 'checked' : '') + ' onchange="toggleCheck(\'' + r.bookingId + '\',' + r.idx + ')"></td>' +
-            '<td class="p-2 font-black text-sm border border-stone-400">' + esc(r.tyranno) + '</td>' +
-            '<td class="p-2 font-bold border border-stone-400">' + esc(r.name) + '</td>' +
-            '<td class="p-2 font-bold border border-stone-400">生年月日：' + formatDob(r.dob) + '</td>' +
-            '<td class="p-2 text-[11px] border border-stone-400">' + esc(r.phone) + '<br>' + esc(r.addr) + '</td>' +
+          rows += '<tr class="border-b border-stone-400 text-sm">' +
+            '<td class="p-2.5 text-center font-black border border-stone-500">' + gateNo + '番</td>' +
+            '<td class="p-2.5 text-center border border-stone-500"><input type="checkbox" ' + (r.checked ? 'checked' : '') + ' onchange="toggleCheck(\'' + r.bookingId + '\',' + r.idx + ')" class="w-4 h-4"></td>' +
+            '<td class="p-2.5 font-black text-base border border-stone-500">' + esc(r.tyranno) + '</td>' +
+            '<td class="p-2.5 font-bold border border-stone-500">' + formatDob(r.dob) + '</td>' +
+            '<td class="p-2.5 border border-stone-500"></td>' +
           '</tr>';
         } else {
-          rows += '<tr class="border-b border-stone-300 text-xs h-9 text-stone-400">' +
-            '<td class="p-2 text-center font-black border border-stone-400 text-stone-800">' + (i + 1) + '</td>' +
+          rows += '<tr class="border-b border-stone-300 text-sm h-10 text-stone-400">' +
+            '<td class="p-2 text-center font-black border border-stone-400 text-stone-800">' + gateNo + '番</td>' +
             '<td class="p-2 text-center border border-stone-400">□</td>' +
             '<td class="p-2 border border-stone-400"></td>' +
-            '<td class="p-2 border border-stone-400"></td>' +
-            '<td class="p-2 border border-stone-400">生年月日：   年  月  日</td>' +
+            '<td class="p-2 border border-stone-400 text-xs">    年  月  日</td>' +
             '<td class="p-2 border border-stone-400"></td>' +
           '</tr>';
         }
@@ -447,26 +654,25 @@
         '<div class="border-b-2 border-stone-900 pb-2 mb-3 flex justify-between items-end">' +
           '<div>' +
             '<div class="text-xs font-bold text-stone-600">10/31ティラノサウルスレース体験会in船橋競馬場 ／ 主催：ティラノフェス実行委員会</div>' +
-            '<h3 class="text-xl font-black mt-0.5">【' + slot.label + '】 ' + slot.time + ' レース表（出走表）</h3>' +
+            '<h3 class="text-xl font-black mt-0.5">【' + slot.label + '】 ' + slot.time + ' 出走表（レース表）</h3>' +
           '</div>' +
-          '<div class="text-xs font-bold text-right">登録数：' + runners.length + ' / 15名<br><span class="text-[11px] text-stone-500">受付10分・着替え10分・ラジオ体操5分・レース5分</span></div>' +
+          '<div class="text-xs font-bold text-right">出走数：' + runners.length + ' / 定員' + cap + '名<br><span class="text-[11px] text-stone-500">※生年月日の若い順で1番ゲートより配置</span></div>' +
         '</div>' +
         '<table class="w-full border-collapse text-left">' +
           '<thead>' +
             '<tr class="bg-stone-900 text-white text-xs">' +
-              '<th class="p-2 text-center w-12 border border-stone-900">枠番</th>' +
-              '<th class="p-2 text-center w-12 border border-stone-900">受付</th>' +
-              '<th class="p-2 border border-stone-900">ティラノネーム</th>' +
-              '<th class="p-2 w-32 border border-stone-900">氏名</th>' +
-              '<th class="p-2 w-48 border border-stone-900">補足事項（生年月日）</th>' +
-              '<th class="p-2 w-44 border border-stone-900">代表者連絡先</th>' +
+              '<th class="p-2.5 text-center w-20 border border-stone-900">ゲート</th>' +
+              '<th class="p-2.5 text-center w-14 border border-stone-900">受付</th>' +
+              '<th class="p-2.5 border border-stone-900">ティラノネーム</th>' +
+              '<th class="p-2.5 w-56 border border-stone-900">補足事項（生年月日）</th>' +
+              '<th class="p-2.5 w-36 border border-stone-900">着順・備考</th>' +
             '</tr>' +
           '</thead>' +
           '<tbody>' + rows + '</tbody>' +
         '</table>' +
         '<div class="mt-3 flex justify-between text-xs font-bold text-stone-700">' +
-          '<span>※ 終了後、手書きの終了証明書（ティラノフェス500円引き）を発行</span>' +
-          '<span>着順メモ： 1着【  】番 ／ 2着【  】番 ／ 3着【  】番</span>' +
+          '<span>※ 体験会終了後、手書きの終了証明書（ティラノフェス500円引き）を発行</span>' +
+          '<span>結果： 1着【  】番ゲート ／ 2着【  】番ゲート ／ 3着【  】番ゲート</span>' +
         '</div>';
     }
 
@@ -481,16 +687,17 @@
     function seedSample() {
       bookings = [
         {
-          id: 'S1', slotId: 'R1', phone: '090-1111-2222', addr: '千葉県船橋市若松1-2-1',
+          id: 'S1', slotId: 'R1', phone: '090-1111-2222', addr: '千葉県船橋市若松1-2-1', createdAt: 1,
           runners: [
             { tyranno: 'フナバシレックス', name: '船橋 太郎', dob: '1990-05-14', checked: true },
             { tyranno: 'チビザウルス1号', name: '船橋 翔太', dob: '2018-08-10', checked: true }
           ]
         },
         {
-          id: 'S2', slotId: 'R1', phone: '080-3333-4444', addr: '千葉県市川市八幡2-3',
+          id: 'S2', slotId: 'R1', phone: '080-3333-4444', addr: '千葉県市川市八幡2-3', createdAt: 2,
           runners: [
-            { tyranno: 'ターフの女帝ティラノ', name: '中山 優子', dob: '1994-11-23', checked: false }
+            { tyranno: 'ターフの女帝ティラノ', name: '中山 優子', dob: '1995-11-23', checked: false },
+            { tyranno: 'ジュニアレックス', name: '中山 蓮', dob: '2020-02-15', checked: true }
           ]
         }
       ];
