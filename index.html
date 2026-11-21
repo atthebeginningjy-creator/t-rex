@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>10/31ティラノサウルスレース体験会in船橋競馬場</title>
+  <title>11月22日 古墳フェスはにコット ティラノサウルスレース体験会</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; }
@@ -32,7 +32,7 @@
           🔄 最新の状況に更新
         </button>
       </div>
-      <h1 class="text-xl sm:text-2xl font-black mb-1">10/31ティラノサウルスレース体験会in船橋競馬場</h1>
+      <h1 class="text-xl sm:text-2xl font-black mb-1">11月22日 古墳フェスはにコット<br class="sm:hidden" /> ティラノサウルスレース体験会</h1>
       <p class="text-xs text-emerald-100">開催時間：11:00-11:30 〜 最終受付会 15:00-15:30（各30分刻み）</p>
     </header>
 
@@ -133,31 +133,44 @@
         </div>
       </div>
 
-      <!-- ⚙️ 定員変更 ＆ ゲート並び順設定 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs">
-        <div class="space-y-2">
-          <div class="font-black text-stone-700">👥 定員（残数上限）の変更（基本15名）</div>
-          <div class="flex flex-wrap items-center gap-2">
-            <span>選択中レースの定員：</span>
-            <input type="number" id="slotCapInput" min="1" max="50" value="15" class="w-16 border border-stone-300 rounded-lg px-2 py-1 font-black text-center">
-            <button onclick="updateCurrentSlotCap()" class="bg-stone-800 text-white font-bold px-3 py-1.5 rounded-lg hover:bg-stone-700">
-              この枠に適用
+      <!-- ⚙️ 定員・レンタルスーツ上限変更 ＆ ゲート並び順設定 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200 text-xs">
+        <div class="lg:col-span-2 space-y-2">
+          <div class="font-black text-stone-700">🦖 全体定員 ＆ スーツ別上限（成獣・幼獣）の変更</div>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="flex items-center gap-1.5 font-bold">
+              <span>全体上限:</span>
+              <input type="number" id="slotTotalCapInput" min="1" max="50" value="15" class="w-16 border border-stone-300 rounded-lg px-2 py-1 font-black text-center bg-white">
+              <span>名</span>
+            </label>
+            <label class="flex items-center gap-1.5 font-bold text-emerald-800">
+              <span>成獣上限:</span>
+              <input type="number" id="slotAdultCapInput" min="0" max="50" value="10" class="w-16 border border-emerald-300 rounded-lg px-2 py-1 font-black text-center bg-white">
+              <span>名</span>
+            </label>
+            <label class="flex items-center gap-1.5 font-bold text-amber-800">
+              <span>幼獣上限:</span>
+              <input type="number" id="slotChildCapInput" min="0" max="50" value="10" class="w-16 border border-amber-300 rounded-lg px-2 py-1 font-black text-center bg-white">
+              <span>名</span>
+            </label>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 pt-0.5">
+            <button onclick="updateCurrentSlotLimits()" class="bg-stone-800 text-white font-bold px-3.5 py-1.5 rounded-lg hover:bg-stone-700">
+              選択中のレースに適用
             </button>
-            <button onclick="updateAllSlotsCap()" class="bg-amber-500 text-stone-950 font-black px-3 py-1.5 rounded-lg hover:bg-amber-400">
-              全レース一括で適用
+            <button onclick="updateAllSlotsLimits()" class="bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-lg hover:bg-amber-400">
+              全9レース一括で適用
             </button>
           </div>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 border-t lg:border-t-0 lg:border-l border-stone-200 pt-2 lg:pt-0 lg:pl-3">
           <div class="font-black text-stone-700">🔢 1番ゲートからの並び順設定</div>
-          <div class="flex items-center gap-2">
-            <select id="sortOrderSelect" onchange="changeSortOrder()" class="border border-stone-300 rounded-lg px-2.5 py-1.5 font-bold bg-white w-full sm:w-auto">
-              <option value="youngest">生年月日の若い順（年齢が若い・年少者から1番ゲート）</option>
-              <option value="oldest">生年月日の早い順（年長者から1番ゲート）</option>
-              <option value="created">受付申込順</option>
-            </select>
-          </div>
+          <select id="sortOrderSelect" onchange="changeSortOrder()" class="border border-stone-300 rounded-lg px-2.5 py-1.5 font-bold bg-white w-full">
+            <option value="youngest">生年月日の若い順（年少者から1番ゲート）</option>
+            <option value="oldest">生年月日の早い順（年長者から1番ゲート）</option>
+            <option value="created">受付申込順</option>
+          </select>
         </div>
       </div>
 
@@ -196,17 +209,23 @@
         <button onclick="closeBookingModal()" class="text-2xl font-bold">&times;</button>
       </div>
       <div class="p-5 overflow-y-auto space-y-4 text-xs">
+        <!-- 現在のスーツ別残数表示＆残り2名以下の警告エリア -->
+        <div id="modalRemainInfo" class="bg-stone-100 p-3 rounded-xl border border-stone-200 space-y-1.5"></div>
+        <div id="modalLowSlotWarning" class="hidden bg-rose-50 border-2 border-rose-400 text-rose-800 p-3 rounded-xl font-bold leading-relaxed">
+          ⚠️ 残り枠がわずか（2名以下）となっています。ほかの方が入力中のため、予約確定時に参加できない場合があります。
+        </div>
+
         <div class="flex items-center justify-between bg-stone-100 p-3 rounded-xl">
           <span class="font-bold">参加人数</span>
-          <select id="partyCount" onchange="renderRunnerForms()" class="border rounded-lg px-3 py-1.5 font-black text-sm"></select>
+          <select id="partyCount" onchange="renderRunnerForms()" class="border rounded-lg px-3 py-1.5 font-black text-sm bg-white"></select>
         </div>
         <div id="runnerFormsArea" class="space-y-3"></div>
         <div class="bg-stone-50 p-3.5 rounded-xl border space-y-2.5">
           <div class="font-black text-stone-700">📞 代表者連絡先（※出走表には公開・印刷されません）</div>
           <input type="tel" id="repPhone" placeholder="電話番号（例: 090-1234-5678）" class="w-full border rounded-lg p-2">
-          <input type="text" id="repAddr" placeholder="住所（例: 千葉県船橋市若松1-2-1）" class="w-full border rounded-lg p-2">
+          <input type="text" id="repAddr" placeholder="住所（例: 大阪府高槻市郡家新町）" class="w-full border rounded-lg p-2">
         </div>
-        <p id="formError" class="hidden text-rose-600 font-bold bg-rose-50 p-2 rounded"></p>
+        <p id="formError" class="hidden text-rose-600 font-bold bg-rose-50 p-2.5 rounded border border-rose-200"></p>
       </div>
       <div class="p-4 bg-stone-100 border-t flex gap-2">
         <button onclick="closeBookingModal()" class="w-1/3 bg-stone-300 font-bold py-2.5 rounded-xl text-xs">閉じる</button>
@@ -224,16 +243,23 @@
       </div>
       <div class="p-5 space-y-3 text-xs">
         <div>
+          <label class="font-bold block mb-1">区分（レンタルスーツ）*</label>
+          <select id="sCat" class="w-full border rounded-lg p-2 font-bold bg-white">
+            <option value="child">幼獣（子ども用スーツ）</option>
+            <option value="adult">成獣（大人用スーツ）</option>
+          </select>
+        </div>
+        <div>
           <label class="font-bold block mb-1">ティラノネーム（出走表に記載）*</label>
-          <input type="text" id="sTyr" placeholder="例: フナバシレックス" class="w-full border rounded-lg p-2 font-bold">
+          <input type="text" id="sTyr" placeholder="例: ハニワレックス" class="w-full border rounded-lg p-2 font-bold">
         </div>
         <div>
           <label class="font-bold block mb-1">生年月日（出走表に記載・ゲート順に使用）*</label>
-          <input type="date" id="sDob" value="2015-05-05" class="w-full border rounded-lg p-2">
+          <input type="date" id="sDob" value="2015-05-05" onchange="autoSelectStaffCategory()" class="w-full border rounded-lg p-2">
         </div>
         <div>
           <label class="font-bold block mb-1">氏名（控え用・印刷されません）</label>
-          <input type="text" id="sName" placeholder="例: 船橋 太郎" class="w-full border rounded-lg p-2">
+          <input type="text" id="sName" placeholder="例: 高槻 太郎" class="w-full border rounded-lg p-2">
         </div>
         <div>
           <label class="font-bold block mb-1">電話番号（控え用・印刷されません）</label>
@@ -263,13 +289,18 @@
 
   <script>
     const CLOUD_DB_URL = "https://t-rextaikenkai-default-rtdb.firebaseio.com/";
+    const DB_ROOT_PATH = "/tyranno1122";
 
-    const DEFAULT_CAP = 15;
+    const DEFAULT_TOTAL_CAP = 15;
+    const DEFAULT_ADULT_CAP = 10;
+    const DEFAULT_CHILD_CAP = 10;
+    const WARN_THRESHOLD = 2; // 残り2人以下で警告表示
+
     const PASS = '12345';
-    const KEY_DATA = 'tyranno_1031_data_v7';
-    const KEY_MY = 'tyranno_1031_my_v7';
-    const KEY_CAPS = 'tyranno_1031_caps_v7';
-    const KEY_SORT = 'tyranno_1031_sort_v7';
+    const KEY_DATA = 'tyranno_1122_data_v1';
+    const KEY_MY = 'tyranno_1122_my_v1';
+    const KEY_LIMITS = 'tyranno_1122_limits_v1';
+    const KEY_SORT = 'tyranno_1122_sort_v1';
 
     const SLOTS = [
       { id: 'R1', label: '第1R', time: '11:00-11:30' },
@@ -284,12 +315,12 @@
     ];
 
     let bookings = [];
-    let slotCaps = {};
+    let slotLimits = {}; // { R1: { total: 15, adult: 10, child: 10 }, ... }
     let sortMode = 'youngest';
     let myId = null;
     let currentSlotId = null;
     let adminSlotId = 'R1';
-    let isMutating = false; // 送信・取消処理中の競合防止ロック
+    let isMutating = false;
 
     function isCloudEnabled() {
       return CLOUD_DB_URL && CLOUD_DB_URL.trim().startsWith('https://');
@@ -297,6 +328,82 @@
 
     function getCleanDbUrl() {
       return CLOUD_DB_URL.trim().replace(/\/$/, '');
+    }
+
+    // 開催日（2026年11月22日）時点の年齢を算出
+    function calcAge(dob) {
+      if (!dob) return 20;
+      const p = dob.split('-');
+      if (p.length !== 3) return 20;
+      let age = 2026 - parseInt(p[0], 10);
+      const m = parseInt(p[1], 10);
+      const d = parseInt(p[2], 10);
+      if (m > 11 || (m === 11 && d > 22)) age--;
+      return age;
+    }
+
+    function inferCategoryFromDob(dob) {
+      return calcAge(dob) <= 12 ? 'child' : 'adult';
+    }
+
+    function getCategoryLabel(cat) {
+      return cat === 'child' ? '幼獣' : '成獣';
+    }
+
+    function ensureSlotLimitsInitialized() {
+      SLOTS.forEach(s => {
+        const cur = slotLimits[s.id];
+        if (!cur || typeof cur !== 'object') {
+          slotLimits[s.id] = {
+            total: DEFAULT_TOTAL_CAP,
+            adult: DEFAULT_ADULT_CAP,
+            child: DEFAULT_CHILD_CAP
+          };
+        } else {
+          if (isNaN(parseInt(cur.total, 10)) || cur.total < 1) cur.total = DEFAULT_TOTAL_CAP;
+          if (isNaN(parseInt(cur.adult, 10)) || cur.adult < 0) cur.adult = DEFAULT_ADULT_CAP;
+          if (isNaN(parseInt(cur.child, 10)) || cur.child < 0) cur.child = DEFAULT_CHILD_CAP;
+        }
+      });
+    }
+
+    function getLimits(slotId) {
+      ensureSlotLimitsInitialized();
+      return slotLimits[slotId];
+    }
+
+    function getSlotAvailability(slotId) {
+      const limits = getLimits(slotId);
+      const runners = getSortedRunners(slotId);
+      const totalCount = runners.length;
+      const adultCount = runners.filter(r => r.category === 'adult').length;
+      const childCount = runners.filter(r => r.category === 'child').length;
+
+      const totalRem = Math.max(0, limits.total - totalCount);
+      const adultRem = Math.max(0, Math.min(totalRem, limits.adult - adultCount));
+      const childRem = Math.max(0, Math.min(totalRem, limits.child - childCount));
+      const effectiveMaxAddable = Math.min(totalRem, adultRem + childRem);
+
+      const isTotalLow = totalRem > 0 && totalRem <= WARN_THRESHOLD;
+      const isAdultLow = adultRem > 0 && adultRem <= WARN_THRESHOLD;
+      const isChildLow = childRem > 0 && childRem <= WARN_THRESHOLD;
+      const hasLowWarning = effectiveMaxAddable > 0 && (isTotalLow || isAdultLow || isChildLow);
+
+      return {
+        limits,
+        totalCount,
+        adultCount,
+        childCount,
+        totalRem,
+        adultRem,
+        childRem,
+        effectiveMaxAddable,
+        isFull: effectiveMaxAddable === 0,
+        isTotalLow,
+        isAdultLow,
+        isChildLow,
+        hasLowWarning
+      };
     }
 
     async function initApp() {
@@ -307,7 +414,6 @@
 
       if (isCloudEnabled()) {
         await fetchCloudData(true);
-        // 1.5秒ごとにキャッシュ回避付きで最新状態を取得
         setInterval(() => fetchCloudData(false), 1500);
       }
     }
@@ -333,69 +439,63 @@
     function loadLocalFallback() {
       try {
         bookings = JSON.parse(localStorage.getItem(KEY_DATA) || '[]');
-        slotCaps = JSON.parse(localStorage.getItem(KEY_CAPS) || '{}');
+        slotLimits = JSON.parse(localStorage.getItem(KEY_LIMITS) || '{}');
         sortMode = localStorage.getItem(KEY_SORT) || 'youngest';
         if (!Array.isArray(bookings)) bookings = [];
       } catch (e) {
         bookings = [];
-        slotCaps = {};
+        slotLimits = {};
         sortMode = 'youngest';
       }
-      SLOTS.forEach(s => {
-        if (!slotCaps[s.id] || slotCaps[s.id] < 1) slotCaps[s.id] = DEFAULT_CAP;
-      });
+      ensureSlotLimitsInitialized();
     }
 
     function saveLocalFallback() {
       localStorage.setItem(KEY_DATA, JSON.stringify(bookings));
-      localStorage.setItem(KEY_CAPS, JSON.stringify(slotCaps));
+      localStorage.setItem(KEY_LIMITS, JSON.stringify(slotLimits));
       localStorage.setItem(KEY_SORT, sortMode);
       if (myId) localStorage.setItem(KEY_MY, myId);
       else localStorage.removeItem(KEY_MY);
     }
 
-    // ★ クラウドから最新データを取得（データが0件＝nullになった場合も確実に空配列へ更新）
     async function fetchCloudData(force = false) {
       if (!isCloudEnabled()) return;
       if (isMutating && !force) return;
       try {
-        const url = getCleanDbUrl() + '/tyranno1031.json?_t=' + Date.now();
+        const url = getCleanDbUrl() + DB_ROOT_PATH + '.json?_t=' + Date.now();
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         if (isMutating && !force) return;
 
         if (data && data.bookings && typeof data.bookings === 'object') {
-          // cancelled: true のデータは除外して有効な予約のみ抽出
           bookings = Object.values(data.bookings).filter(
             b => b && !b.cancelled && Array.isArray(b.runners) && b.runners.length > 0
           );
         } else {
-          // データが null や空になった場合も確実に 0件 にリセットする
           bookings = [];
         }
 
         if (data && data.settings) {
-          if (data.settings.slotCaps) slotCaps = data.settings.slotCaps;
+          if (data.settings.slotLimits && typeof data.settings.slotLimits === 'object') {
+            slotLimits = data.settings.slotLimits;
+          }
           if (data.settings.sortMode) sortMode = data.settings.sortMode;
         }
-        SLOTS.forEach(s => {
-          if (!slotCaps[s.id] || slotCaps[s.id] < 1) slotCaps[s.id] = DEFAULT_CAP;
-        });
+        ensureSlotLimitsInitialized();
 
-        // 自分の予約が管理者側または別タブで取り消されていた場合は myId もクリア
         if (myId && !bookings.some(b => b.id === myId)) {
           myId = null;
         }
 
         saveLocalFallback();
         renderAll();
+        updateModalRemainInfoIfOpen();
       } catch (e) {
         console.warn('Cloud fetch error:', e);
       }
     }
 
-    // ★ 予約1件をクラウドへ書き込み（新規・更新用）
     async function writeBookingToCloud(bookingObj) {
       isMutating = true;
       saveLocalFallback();
@@ -405,7 +505,7 @@
         return;
       }
       try {
-        await fetch(getCleanDbUrl() + '/tyranno1031/bookings/' + bookingObj.id + '.json?_t=' + Date.now(), {
+        await fetch(getCleanDbUrl() + DB_ROOT_PATH + '/bookings/' + bookingObj.id + '.json?_t=' + Date.now(), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bookingObj)
@@ -418,7 +518,6 @@
       }
     }
 
-    // ★ 予約取り消しをクラウドへ書き込み（新規予約と同じPUT通信で cancelled: true を記録し確実に即時反映）
     async function markBookingCancelledInCloud(bookingId) {
       isMutating = true;
       bookings = bookings.filter(b => b && b.id !== bookingId);
@@ -431,7 +530,7 @@
         return;
       }
       try {
-        await fetch(getCleanDbUrl() + '/tyranno1031/bookings/' + bookingId + '.json?_t=' + Date.now(), {
+        await fetch(getCleanDbUrl() + DB_ROOT_PATH + '/bookings/' + bookingId + '.json?_t=' + Date.now(), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -457,10 +556,10 @@
         return;
       }
       try {
-        await fetch(getCleanDbUrl() + '/tyranno1031/settings.json?_t=' + Date.now(), {
+        await fetch(getCleanDbUrl() + DB_ROOT_PATH + '/settings.json?_t=' + Date.now(), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slotCaps: slotCaps, sortMode: sortMode, updatedAt: Date.now() })
+          body: JSON.stringify({ slotLimits: slotLimits, sortMode: sortMode, updatedAt: Date.now() })
         });
       } catch (e) {
         console.warn('Cloud save settings error:', e);
@@ -470,21 +569,20 @@
       }
     }
 
-    function getCap(slotId) {
-      return parseInt(slotCaps[slotId], 10) || DEFAULT_CAP;
-    }
-
     function getSortedRunners(slotId) {
       const arr = [];
       if (!Array.isArray(bookings)) bookings = [];
       bookings.filter(b => b && !b.cancelled && b.slotId === slotId && Array.isArray(b.runners)).forEach(b => {
         b.runners.forEach((r, idx) => {
+          const dob = r.dob || '2000-01-01';
+          const cat = (r.category === 'child' || r.category === 'adult') ? r.category : inferCategoryFromDob(dob);
           arr.push({
             bookingId: b.id,
             idx: idx,
             name: r.name || '',
             tyranno: r.tyranno || '',
-            dob: r.dob || '2000-01-01',
+            dob: dob,
+            category: cat,
             checked: !!r.checked,
             phone: b.phone || '',
             addr: b.addr || '',
@@ -509,10 +607,7 @@
       if (!dob) return '';
       const p = dob.split('-');
       if (p.length !== 3) return dob;
-      let age = 2026 - parseInt(p[0], 10);
-      const m = parseInt(p[1], 10);
-      const d = parseInt(p[2], 10);
-      if (m > 10 || (m === 10 && d > 31)) age--;
+      const age = calcAge(dob);
       return p[0] + '年' + p[1] + '月' + p[2] + '日 (' + age + '歳)';
     }
 
@@ -540,9 +635,16 @@
       document.getElementById('myBookedTime').textContent = slot ? (slot.label + ' ' + slot.time) : '';
       document.getElementById('myBookedRunners').innerHTML = (myB.runners || []).map((r, i) => {
         const gateNo = sorted.findIndex(sr => sr.bookingId === myB.id && sr.idx === i) + 1;
-        return '<div class="bg-stone-100 p-2.5 rounded-lg border flex items-center justify-between">' +
-          '<div><span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded mr-2">' + gateNo + '番ゲート</span>' +
-          '<span class="font-black text-sm">🦖 ' + esc(r.tyranno) + '</span></div>' +
+        const cat = (r.category === 'child' || r.category === 'adult') ? r.category : inferCategoryFromDob(r.dob);
+        const catBadge = cat === 'child'
+          ? '<span class="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-black px-1.5 py-0.5 rounded mr-1">幼獣</span>'
+          : '<span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-black px-1.5 py-0.5 rounded mr-1">成獣</span>';
+        return '<div class="bg-stone-100 p-2.5 rounded-lg border flex flex-wrap items-center justify-between gap-1">' +
+          '<div class="flex items-center flex-wrap gap-1">' +
+            '<span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded">' + gateNo + '番ゲート</span>' +
+            catBadge +
+            '<span class="font-black text-sm">🦖 ' + esc(r.tyranno) + '</span>' +
+          '</div>' +
           '<span class="text-stone-600 text-xs">生年月日: ' + formatDob(r.dob) + '</span>' +
         '</div>';
       }).join('');
@@ -552,11 +654,8 @@
       const list = document.getElementById('slotsList');
       const myB = bookings.find(b => b && !b.cancelled && b.id === myId);
       list.innerHTML = SLOTS.map(s => {
-        const cap = getCap(s.id);
-        const count = getSortedRunners(s.id).length;
-        const rem = Math.max(0, cap - count);
+        const av = getSlotAvailability(s.id);
         const isMine = myB && myB.slotId === s.id;
-        const isFull = rem === 0;
         let btn = '';
         if (isMine) {
           btn = '<div class="flex items-center gap-1.5">' +
@@ -565,55 +664,129 @@
           '</div>';
         } else if (myB) {
           btn = '<button disabled class="bg-stone-200 text-stone-400 text-xs font-bold px-3 py-2 rounded-xl">他枠予約済</button>';
-        } else if (isFull) {
+        } else if (av.isFull) {
           btn = '<button disabled class="bg-stone-300 text-stone-500 text-xs font-bold px-3 py-2 rounded-xl">満員御礼</button>';
         } else {
           btn = '<button onclick="openBookingModal(\'' + s.id + '\')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-sm transition">予約する</button>';
         }
-        return '<div class="bg-white p-4 rounded-2xl shadow-sm border flex items-center justify-between gap-2">' +
-          '<div>' +
-            '<div class="flex items-center flex-wrap gap-2">' +
-              '<span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded">' + s.label + '</span>' +
-              '<span class="text-base font-black">' + s.time + '</span>' +
-              '<span class="text-xs font-bold ' + (isFull ? 'text-rose-600' : 'text-emerald-700') + '">残り' + rem + '名 (' + count + '/' + cap + '名)</span>' +
+
+        const adultBadgeClass = av.adultRem === 0
+          ? 'bg-stone-200 text-stone-500'
+          : (av.isAdultLow ? 'bg-rose-100 text-rose-700 border border-rose-300' : 'bg-emerald-50 text-emerald-800 border border-emerald-200');
+        const childBadgeClass = av.childRem === 0
+          ? 'bg-stone-200 text-stone-500'
+          : (av.isChildLow ? 'bg-rose-100 text-rose-700 border border-rose-300' : 'bg-amber-50 text-amber-800 border border-amber-200');
+
+        const lowWarnHtml = (!isMine && av.hasLowWarning)
+          ? '<div class="mt-2 bg-rose-50 border border-rose-300 text-rose-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg">' +
+              '⚠️ 残りわずかです！ほかの方が入力中のため参加できない場合があります。' +
+            '</div>'
+          : '';
+
+        return '<div class="bg-white p-4 rounded-2xl shadow-sm border">' +
+          '<div class="flex items-center justify-between gap-2">' +
+            '<div class="space-y-1.5">' +
+              '<div class="flex items-center flex-wrap gap-2">' +
+                '<span class="bg-stone-900 text-amber-300 text-xs font-black px-2 py-0.5 rounded">' + s.label + '</span>' +
+                '<span class="text-base font-black">' + s.time + '</span>' +
+                '<span class="text-xs font-bold ' + (av.isFull ? 'text-rose-600' : 'text-stone-700') + '">全体 残り' + av.effectiveMaxAddable + '名 (' + av.totalCount + '/' + av.limits.total + ')</span>' +
+              '</div>' +
+              '<div class="flex flex-wrap gap-1.5 text-[11px] font-bold">' +
+                '<span class="px-2 py-0.5 rounded-md ' + adultBadgeClass + '">成獣：' + (av.adultRem === 0 ? '満員' : '残' + av.adultRem + '名') + '</span>' +
+                '<span class="px-2 py-0.5 rounded-md ' + childBadgeClass + '">幼獣：' + (av.childRem === 0 ? '満員' : '残' + av.childRem + '名') + '</span>' +
+              '</div>' +
             '</div>' +
-            '<div class="text-[11px] text-stone-500 mt-1">受付10分 / 着替え10分 / ラジオ体操5分 / レース5分</div>' +
+            '<div class="shrink-0">' + btn + '</div>' +
           '</div>' +
-          '<div class="shrink-0">' + btn + '</div>' +
+          lowWarnHtml +
         '</div>';
       }).join('');
+    }
+
+    function updateModalRemainInfoIfOpen() {
+      const modal = document.getElementById('bookingModal');
+      if (!modal || modal.classList.contains('hidden') || !currentSlotId) return;
+      renderModalRemainBox(currentSlotId);
+    }
+
+    function renderModalRemainBox(slotId) {
+      const av = getSlotAvailability(slotId);
+      const infoEl = document.getElementById('modalRemainInfo');
+      const warnEl = document.getElementById('modalLowSlotWarning');
+
+      infoEl.innerHTML =
+        '<div class="flex flex-wrap items-center justify-between gap-2">' +
+          '<span class="font-black text-stone-700">現在のスーツ別空き状況</span>' +
+          '<span class="font-bold text-stone-600">全体 残り ' + av.effectiveMaxAddable + '名</span>' +
+        '</div>' +
+        '<div class="flex flex-wrap gap-2 font-black">' +
+          '<span class="px-2.5 py-1 rounded-lg ' + (av.adultRem === 0 ? 'bg-stone-200 text-stone-500' : 'bg-emerald-100 text-emerald-900') + '">成獣（大人用）：' + (av.adultRem === 0 ? '満員' : '残り ' + av.adultRem + '名') + '</span>' +
+          '<span class="px-2.5 py-1 rounded-lg ' + (av.childRem === 0 ? 'bg-stone-200 text-stone-500' : 'bg-amber-100 text-amber-900') + '">幼獣（子ども用）：' + (av.childRem === 0 ? '満員' : '残り ' + av.childRem + '名') + '</span>' +
+        '</div>';
+
+      if (av.hasLowWarning) {
+        warnEl.classList.remove('hidden');
+      } else {
+        warnEl.classList.add('hidden');
+      }
     }
 
     function openBookingModal(slotId) {
       currentSlotId = slotId;
       const slot = SLOTS.find(s => s.id === slotId);
-      const cap = getCap(slotId);
-      const rem = Math.max(1, cap - getSortedRunners(slotId).length);
-      const maxP = Math.min(5, rem);
+      const av = getSlotAvailability(slotId);
+      const maxP = Math.max(1, Math.min(5, av.effectiveMaxAddable));
       document.getElementById('modalHeaderTitle').textContent = slot.label + ' (' + slot.time + ') 参加申込';
       const sel = document.getElementById('partyCount');
       let opts = '';
       for (let i = 1; i <= maxP; i++) opts += '<option value="' + i + '">' + i + '名</option>';
       sel.innerHTML = opts;
       document.getElementById('formError').classList.add('hidden');
+      renderModalRemainBox(slotId);
       renderRunnerForms();
       document.getElementById('bookingModal').classList.remove('hidden');
     }
 
     function closeBookingModal() {
       document.getElementById('bookingModal').classList.add('hidden');
+      currentSlotId = null;
+    }
+
+    function onRunnerDobChange(idx) {
+      const dobEl = document.getElementById('fDob_' + idx);
+      const catEl = document.getElementById('fCat_' + idx);
+      if (!dobEl || !catEl || !dobEl.value) return;
+      const av = currentSlotId ? getSlotAvailability(currentSlotId) : null;
+      const inferred = inferCategoryFromDob(dobEl.value);
+      if (av) {
+        if (inferred === 'child' && av.childRem > 0) catEl.value = 'child';
+        else if (inferred === 'adult' && av.adultRem > 0) catEl.value = 'adult';
+      } else {
+        catEl.value = inferred;
+      }
     }
 
     function renderRunnerForms() {
       const n = parseInt(document.getElementById('partyCount').value, 10) || 1;
+      const av = currentSlotId ? getSlotAvailability(currentSlotId) : { adultRem: 10, childRem: 10 };
+      const defaultCat = av.childRem > 0 ? 'child' : 'adult';
+      const defaultDob = defaultCat === 'child' ? '2017-05-05' : '1995-05-05';
+
       let html = '';
       for (let i = 0; i < n; i++) {
         html += '<div class="bg-emerald-50/60 p-3 rounded-xl border border-emerald-200 space-y-2">' +
           '<div class="font-black text-emerald-900">🦖 出走者 ' + (i + 1) + '人目</div>' +
+          '<div>' +
+            '<label class="block text-[11px] font-bold text-stone-600 mb-0.5">レンタルスーツ区分（幼獣 / 成獣）*</label>' +
+            '<select id="fCat_' + i + '" class="w-full border rounded-lg p-2 font-bold bg-white">' +
+              '<option value="child"' + (defaultCat === 'child' ? ' selected' : '') + (av.childRem === 0 ? ' disabled' : '') + '>幼獣（子ども用スーツ）' + (av.childRem === 0 ? '【満員】' : '（残' + av.childRem + '名）') + '</option>' +
+              '<option value="adult"' + (defaultCat === 'adult' ? ' selected' : '') + (av.adultRem === 0 ? ' disabled' : '') + '>成獣（大人用スーツ）' + (av.adultRem === 0 ? '【満員】' : '（残' + av.adultRem + '名）') + '</option>' +
+            '</select>' +
+          '</div>' +
           '<input type="text" id="fTyr_' + i + '" placeholder="ティラノネーム（出走表に掲載）*" class="w-full border rounded-lg p-2 font-bold">' +
           '<input type="text" id="fName_' + i + '" placeholder="氏名（控え用・出走表には印刷されません）*" class="w-full border rounded-lg p-2">' +
           '<div><label class="block text-[11px] font-bold text-stone-600 mb-0.5">生年月日（出走表に掲載・若い順で1番ゲートから配置）*</label>' +
-          '<input type="date" id="fDob_' + i + '" value="2015-05-05" class="w-full border rounded-lg p-2"></div>' +
+          '<input type="date" id="fDob_' + i + '" value="' + defaultDob + '" onchange="onRunnerDobChange(' + i + ')" class="w-full border rounded-lg p-2"></div>' +
         '</div>';
       }
       document.getElementById('runnerFormsArea').innerHTML = html;
@@ -627,7 +800,11 @@
       const btn = document.getElementById('submitBookingBtn');
       const runners = [];
 
+      let reqAdult = 0;
+      let reqChild = 0;
+
       for (let i = 0; i < n; i++) {
+        const cat = document.getElementById('fCat_' + i).value;
         const tyr = document.getElementById('fTyr_' + i).value.trim();
         const name = document.getElementById('fName_' + i).value.trim();
         const dob = document.getElementById('fDob_' + i).value;
@@ -636,7 +813,9 @@
           err.classList.remove('hidden');
           return;
         }
-        runners.push({ tyranno: tyr, name: name, dob: dob, checked: false });
+        if (cat === 'child') reqChild++;
+        else reqAdult++;
+        runners.push({ category: cat, tyranno: tyr, name: name, dob: dob, checked: false });
       }
       if (!phone || !addr) {
         err.textContent = '代表者の電話番号と住所を入力してください。';
@@ -645,15 +824,34 @@
       }
 
       btn.disabled = true;
-      btn.textContent = '送信中...';
+      btn.textContent = '空き状況を確認して送信中...';
+      err.classList.add('hidden');
 
       if (isCloudEnabled()) {
         await fetchCloudData(true);
       }
-      const remain = getCap(currentSlotId) - getSortedRunners(currentSlotId).length;
-      if (remain < n) {
-        err.textContent = '申し訳ありません。残り枠が ' + Math.max(0, remain) + ' 名となりました。';
+
+      const av = getSlotAvailability(currentSlotId);
+      if (av.totalRem < n) {
+        err.textContent = '申し訳ありません。ほかの方の予約が入ったため、全体の残り枠が ' + av.totalRem + ' 名となりました。';
         err.classList.remove('hidden');
+        renderModalRemainBox(currentSlotId);
+        btn.disabled = false;
+        btn.textContent = '予約を確定する';
+        return;
+      }
+      if (av.adultRem < reqAdult) {
+        err.textContent = '申し訳ありません。成獣（大人用スーツ）の残り枠が ' + av.adultRem + ' 名のため、成獣 ' + reqAdult + ' 名での予約はできません。';
+        err.classList.remove('hidden');
+        renderModalRemainBox(currentSlotId);
+        btn.disabled = false;
+        btn.textContent = '予約を確定する';
+        return;
+      }
+      if (av.childRem < reqChild) {
+        err.textContent = '申し訳ありません。幼獣（子ども用スーツ）の残り枠が ' + av.childRem + ' 名のため、幼獣 ' + reqChild + ' 名での予約はできません。';
+        err.classList.remove('hidden');
+        renderModalRemainBox(currentSlotId);
         btn.disabled = false;
         btn.textContent = '予約を確定する';
         return;
@@ -738,17 +936,29 @@
       renderAdmin();
     }
 
-    async function updateCurrentSlotCap() {
-      const val = parseInt(document.getElementById('slotCapInput').value, 10);
-      if (!val || val < 1) return;
-      slotCaps[adminSlotId] = val;
+    function readAdminLimitInputs() {
+      const total = parseInt(document.getElementById('slotTotalCapInput').value, 10);
+      const adult = parseInt(document.getElementById('slotAdultCapInput').value, 10);
+      const child = parseInt(document.getElementById('slotChildCapInput').value, 10);
+      if (isNaN(total) || total < 1 || isNaN(adult) || adult < 0 || isNaN(child) || child < 0) {
+        return null;
+      }
+      return { total, adult, child };
+    }
+
+    async function updateCurrentSlotLimits() {
+      const vals = readAdminLimitInputs();
+      if (!vals) return;
+      slotLimits[adminSlotId] = vals;
       await saveSettingsToCloud();
     }
 
-    async function updateAllSlotsCap() {
-      const val = parseInt(document.getElementById('slotCapInput').value, 10);
-      if (!val || val < 1) return;
-      SLOTS.forEach(s => { slotCaps[s.id] = val; });
+    async function updateAllSlotsLimits() {
+      const vals = readAdminLimitInputs();
+      if (!vals) return;
+      SLOTS.forEach(s => {
+        slotLimits[s.id] = { total: vals.total, adult: vals.adult, child: vals.child };
+      });
       await saveSettingsToCloud();
     }
 
@@ -757,10 +967,17 @@
       await saveSettingsToCloud();
     }
 
+    function autoSelectStaffCategory() {
+      const dob = document.getElementById('sDob').value;
+      document.getElementById('sCat').value = inferCategoryFromDob(dob);
+    }
+
     function openStaffAddModal() {
       document.getElementById('sTyr').value = '';
       document.getElementById('sName').value = '';
       document.getElementById('sPhone').value = '';
+      document.getElementById('sDob').value = '2015-05-05';
+      document.getElementById('sCat').value = 'child';
       document.getElementById('staffAddModal').classList.remove('hidden');
     }
 
@@ -769,6 +986,7 @@
     }
 
     async function submitStaffAdd() {
+      const cat = document.getElementById('sCat').value;
       const tyr = document.getElementById('sTyr').value.trim();
       const dob = document.getElementById('sDob').value;
       const name = document.getElementById('sName').value.trim() || '当日受付';
@@ -782,7 +1000,7 @@
         addr: '当日受付',
         createdAt: Date.now(),
         cancelled: false,
-        runners: [{ tyranno: tyr, name: name, dob: dob, checked: true }]
+        runners: [{ category: cat, tyranno: tyr, name: name, dob: dob, checked: true }]
       };
       if (!Array.isArray(bookings)) bookings = [];
       bookings.push(newObj);
@@ -802,29 +1020,33 @@
     }
 
     function renderAdmin() {
-      const capInput = document.getElementById('slotCapInput');
-      if (capInput && document.activeElement !== capInput) {
-        capInput.value = getCap(adminSlotId);
-      }
+      const limits = getLimits(adminSlotId);
+      const totalInput = document.getElementById('slotTotalCapInput');
+      const adultInput = document.getElementById('slotAdultCapInput');
+      const childInput = document.getElementById('slotChildCapInput');
+
+      if (totalInput && document.activeElement !== totalInput) totalInput.value = limits.total;
+      if (adultInput && document.activeElement !== adultInput) adultInput.value = limits.adult;
+      if (childInput && document.activeElement !== childInput) childInput.value = limits.child;
+
       const sortSel = document.getElementById('sortOrderSelect');
       if (sortSel) sortSel.value = sortMode;
 
       const tabs = document.getElementById('adminTabs');
       tabs.innerHTML = SLOTS.map(s => {
-        const c = getSortedRunners(s.id).length;
-        const cap = getCap(s.id);
+        const av = getSlotAvailability(s.id);
         const active = s.id === adminSlotId;
         return '<button onclick="selectAdminSlot(\'' + s.id + '\')" class="p-2 rounded-xl border text-left text-xs font-bold ' +
           (active ? 'bg-stone-900 text-amber-300 border-stone-900' : 'bg-stone-50 text-stone-700') + '">' +
-          '<div>' + s.label + ' (' + c + '/' + cap + ')</div>' +
-          '<div class="text-[10px] font-normal">' + s.time + '</div>' +
+          '<div>' + s.label + ' (' + av.totalCount + '/' + av.limits.total + ')</div>' +
+          '<div class="text-[10px] font-normal">成' + av.adultCount + '/' + av.limits.adult + ' 幼' + av.childCount + '/' + av.limits.child + '</div>' +
         '</button>';
       }).join('');
 
       const slot = SLOTS.find(s => s.id === adminSlotId);
-      const cap = getCap(adminSlotId);
+      const av = getSlotAvailability(adminSlotId);
       const runners = getSortedRunners(adminSlotId);
-      const rowTotal = Math.max(cap, runners.length);
+      const rowTotal = Math.max(av.limits.total, runners.length);
 
       const privEl = document.getElementById('adminPrivateList');
       if (runners.length === 0) {
@@ -832,7 +1054,7 @@
       } else {
         privEl.innerHTML = runners.map((r, i) =>
           '<div class="flex flex-wrap items-center justify-between bg-white px-3 py-1.5 rounded border border-stone-200 gap-2">' +
-            '<div><span class="font-black mr-2">' + (i + 1) + '番ゲート：' + esc(r.tyranno) + '</span>' +
+            '<div><span class="font-black mr-2">' + (i + 1) + '番ゲート [' + getCategoryLabel(r.category) + ']：' + esc(r.tyranno) + '</span>' +
             '<span class="text-stone-600">（氏名: ' + esc(r.name) + ' / 生年月日: ' + formatDob(r.dob) + ' / TEL: ' + esc(r.phone) + ' / 住所: ' + esc(r.addr) + '）</span></div>' +
             '<button onclick="removeRunner(\'' + r.bookingId + '\',' + r.idx + ')" class="text-rose-600 font-bold hover:underline">削除</button>' +
           '</div>'
@@ -844,9 +1066,11 @@
         const gateNo = i + 1;
         const r = runners[i];
         if (r) {
+          const catLabel = getCategoryLabel(r.category);
           rows += '<tr class="border-b border-stone-400 text-sm">' +
             '<td class="p-2.5 text-center font-black border border-stone-500">' + gateNo + '番</td>' +
             '<td class="p-2.5 text-center border border-stone-500"><input type="checkbox" ' + (r.checked ? 'checked' : '') + ' onchange="toggleCheck(\'' + r.bookingId + '\',' + r.idx + ')" class="w-4 h-4"></td>' +
+            '<td class="p-2.5 text-center font-black border border-stone-500">' + catLabel + '</td>' +
             '<td class="p-2.5 font-black text-base border border-stone-500">' + esc(r.tyranno) + '</td>' +
             '<td class="p-2.5 font-bold border border-stone-500">' + formatDob(r.dob) + '</td>' +
             '<td class="p-2.5 border border-stone-500"></td>' +
@@ -855,6 +1079,7 @@
           rows += '<tr class="border-b border-stone-300 text-sm h-10 text-stone-400">' +
             '<td class="p-2 text-center font-black border border-stone-400 text-stone-800">' + gateNo + '番</td>' +
             '<td class="p-2 text-center border border-stone-400">□</td>' +
+            '<td class="p-2 text-center border border-stone-400 text-xs">幼・成</td>' +
             '<td class="p-2 border border-stone-400"></td>' +
             '<td class="p-2 border border-stone-400 text-xs">    年  月  日</td>' +
             '<td class="p-2 border border-stone-400"></td>' +
@@ -865,19 +1090,23 @@
       document.getElementById('raceSheetArea').innerHTML =
         '<div class="border-b-2 border-stone-900 pb-2 mb-3 flex justify-between items-end">' +
           '<div>' +
-            '<div class="text-xs font-bold text-stone-600">10/31ティラノサウルスレース体験会in船橋競馬場 ／ 主催：ティラノフェス実行委員会</div>' +
+            '<div class="text-xs font-bold text-stone-600">11月22日 古墳フェスはにコット ティラノサウルスレース体験会 ／ 主催：ティラノフェス実行委員会</div>' +
             '<h3 class="text-xl font-black mt-0.5">【' + slot.label + '】 ' + slot.time + ' 出走表（レース表）</h3>' +
           '</div>' +
-          '<div class="text-xs font-bold text-right">出走数：' + runners.length + ' / 定員' + cap + '名<br><span class="text-[11px] text-stone-500">※生年月日の若い順で1番ゲートより配置</span></div>' +
+          '<div class="text-xs font-bold text-right">' +
+            '出走数：' + av.totalCount + ' / ' + av.limits.total + '名（成獣 ' + av.adultCount + '/' + av.limits.adult + ' ・ 幼獣 ' + av.childCount + '/' + av.limits.child + '）<br>' +
+            '<span class="text-[11px] text-stone-500">※生年月日の若い順で1番ゲートより配置</span>' +
+          '</div>' +
         '</div>' +
         '<table class="w-full border-collapse text-left">' +
           '<thead>' +
             '<tr class="bg-stone-900 text-white text-xs">' +
-              '<th class="p-2.5 text-center w-20 border border-stone-900">ゲート</th>' +
-              '<th class="p-2.5 text-center w-14 border border-stone-900">受付</th>' +
+              '<th class="p-2.5 text-center w-16 border border-stone-900">ゲート</th>' +
+              '<th class="p-2.5 text-center w-12 border border-stone-900">受付</th>' +
+              '<th class="p-2.5 text-center w-16 border border-stone-900">区分</th>' +
               '<th class="p-2.5 border border-stone-900">ティラノネーム</th>' +
-              '<th class="p-2.5 w-56 border border-stone-900">補足事項（生年月日）</th>' +
-              '<th class="p-2.5 w-36 border border-stone-900">着順・備考</th>' +
+              '<th class="p-2.5 w-52 border border-stone-900">補足事項（生年月日）</th>' +
+              '<th class="p-2.5 w-32 border border-stone-900">着順・備考</th>' +
             '</tr>' +
           '</thead>' +
           '<tbody>' + rows + '</tbody>' +
@@ -898,17 +1127,17 @@
 
     async function seedSample() {
       const s1 = {
-        id: 'S1', slotId: 'R1', phone: '090-1111-2222', addr: '千葉県船橋市若松1-2-1', createdAt: 1, cancelled: false,
+        id: 'S1', slotId: 'R1', phone: '090-1111-2222', addr: '大阪府高槻市郡家新町', createdAt: 1, cancelled: false,
         runners: [
-          { tyranno: 'フナバシレックス', name: '船橋 太郎', dob: '1990-05-14', checked: true },
-          { tyranno: 'チビザウルス1号', name: '船橋 翔太', dob: '2018-08-10', checked: true }
+          { category: 'adult', tyranno: 'ハニワレックス', name: '高槻 太郎', dob: '1990-05-14', checked: true },
+          { category: 'child', tyranno: 'コフンザウルス1号', name: '高槻 翔太', dob: '2018-08-10', checked: true }
         ]
       };
       const s2 = {
-        id: 'S2', slotId: 'R1', phone: '080-3333-4444', addr: '千葉県市川市八幡2-3', createdAt: 2, cancelled: false,
+        id: 'S2', slotId: 'R1', phone: '080-3333-4444', addr: '大阪府茨木市駅前', createdAt: 2, cancelled: false,
         runners: [
-          { tyranno: 'ターフの女帝ティラノ', name: '中山 優子', dob: '1995-11-23', checked: false },
-          { tyranno: 'ジュニアレックス', name: '中山 蓮', dob: '2020-02-15', checked: true }
+          { category: 'adult', tyranno: 'イマシロの女帝', name: '今城 優子', dob: '1995-11-23', checked: false },
+          { category: 'child', tyranno: 'ちびハニワ竜', name: '今城 蓮', dob: '2020-02-15', checked: true }
         ]
       };
       bookings = [s1, s2];
@@ -925,8 +1154,7 @@
       renderAll();
       if (isCloudEnabled()) {
         try {
-          // 空オブジェクトではなくダミーのキャンセル済データを置くことでデータベースがnullになるのを防ぐ
-          await fetch(getCleanDbUrl() + '/tyranno1031/bookings.json?_t=' + Date.now(), {
+          await fetch(getCleanDbUrl() + DB_ROOT_PATH + '/bookings.json?_t=' + Date.now(), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ _empty: { id: '_empty', cancelled: true } })
