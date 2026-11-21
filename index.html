@@ -33,7 +33,7 @@
         </button>
       </div>
       <h1 class="text-xl sm:text-2xl font-black mb-1">11月22日 古墳フェスはにコット<br class="sm:hidden" /> ティラノサウルスレース体験会</h1>
-      <p class="text-xs text-emerald-100">開催時間：11:00-11:30 〜 最終受付会 15:00-15:30（各30分刻み）</p>
+      <p class="text-xs text-emerald-100">開催時間：14:00～ / 14:30～ / 15:00～ / 15:30～（全4回・各30分）</p>
     </header>
 
     <!-- タイムスケジュール・案内 -->
@@ -159,7 +159,7 @@
               選択中のレースに適用
             </button>
             <button onclick="updateAllSlotsLimits()" class="bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-lg hover:bg-amber-400">
-              全9レース一括で適用
+              全4レース一括で適用
             </button>
           </div>
         </div>
@@ -174,10 +174,10 @@
         </div>
       </div>
 
-      <!-- レース切り替えタブ -->
+      <!-- レース切り替えタブ（4枠） -->
       <div>
         <div class="text-xs font-bold text-stone-500 mb-1.5">確認・印刷するレース枠を選択：</div>
-        <div id="adminTabs" class="grid grid-cols-3 sm:grid-cols-9 gap-1.5"></div>
+        <div id="adminTabs" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
       </div>
 
       <!-- スタッフ用 個人情報控え（印刷時は非表示） -->
@@ -297,21 +297,17 @@
     const WARN_THRESHOLD = 2; // 残り2人以下で警告表示
 
     const PASS = '12345';
-    const KEY_DATA = 'tyranno_1122_data_v1';
-    const KEY_MY = 'tyranno_1122_my_v1';
-    const KEY_LIMITS = 'tyranno_1122_limits_v1';
-    const KEY_SORT = 'tyranno_1122_sort_v1';
+    const KEY_DATA = 'tyranno_1122_data_v2';
+    const KEY_MY = 'tyranno_1122_my_v2';
+    const KEY_LIMITS = 'tyranno_1122_limits_v2';
+    const KEY_SORT = 'tyranno_1122_sort_v2';
 
+    // 14:00～ / 14:30～ / 15:00～ / 15:30～ の全4回
     const SLOTS = [
-      { id: 'R1', label: '第1R', time: '11:00-11:30' },
-      { id: 'R2', label: '第2R', time: '11:30-12:00' },
-      { id: 'R3', label: '第3R', time: '12:00-12:30' },
-      { id: 'R4', label: '第4R', time: '12:30-13:00' },
-      { id: 'R5', label: '第5R', time: '13:00-13:30' },
-      { id: 'R6', label: '第6R', time: '13:30-14:00' },
-      { id: 'R7', label: '第7R', time: '14:00-14:30' },
-      { id: 'R8', label: '第8R', time: '14:30-15:00' },
-      { id: 'R9', label: '第9R（最終受付会）', time: '15:00-15:30' }
+      { id: 'R1', label: '第1R', time: '14:00-14:30' },
+      { id: 'R2', label: '第2R', time: '14:30-15:00' },
+      { id: 'R3', label: '第3R', time: '15:00-15:30' },
+      { id: 'R4', label: '第4R（最終受付会）', time: '15:30-16:00' }
     ];
 
     let bookings = [];
@@ -1036,10 +1032,10 @@
       tabs.innerHTML = SLOTS.map(s => {
         const av = getSlotAvailability(s.id);
         const active = s.id === adminSlotId;
-        return '<button onclick="selectAdminSlot(\'' + s.id + '\')" class="p-2 rounded-xl border text-left text-xs font-bold ' +
+        return '<button onclick="selectAdminSlot(\'' + s.id + '\')" class="p-2.5 rounded-xl border text-left text-xs font-bold ' +
           (active ? 'bg-stone-900 text-amber-300 border-stone-900' : 'bg-stone-50 text-stone-700') + '">' +
-          '<div>' + s.label + ' (' + av.totalCount + '/' + av.limits.total + ')</div>' +
-          '<div class="text-[10px] font-normal">成' + av.adultCount + '/' + av.limits.adult + ' 幼' + av.childCount + '/' + av.limits.child + '</div>' +
+          '<div>' + s.label + ' ' + s.time + '</div>' +
+          '<div class="text-[11px] font-normal mt-0.5">計' + av.totalCount + '/' + av.limits.total + '（成' + av.adultCount + '/' + av.limits.adult + '・幼' + av.childCount + '/' + av.limits.child + '）</div>' +
         '</button>';
       }).join('');
 
